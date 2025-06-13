@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bike Demand Forecast</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --background: #f8fafc;
+            --text: #1a1a1a;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text);
+        }
+
+        .container {
+            background: white;
+            padding: 3rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--success) 100%);
+        }
+
+        h1 {
+            color: var(--text);
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--success) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .bike-icon {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .bike-icon path {
+            fill: url(#gradient);
+        }
+
+        .prediction-card {
+            background: var(--background);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-top: 2rem;
+            border: 2px solid rgba(59, 130, 246, 0.1);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .prediction-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+            z-index: 0;
+        }
+
+        .predict-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1.2rem 2.5rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .predict-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .predict-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+        }
+
+        .predict-btn:hover::before {
+            left: 100%;
+        }
+
+        .predict-btn:active {
+            transform: translateY(0);
+        }
+
+        .prediction-text {
+            font-size: 1.25rem;
+            color: var(--text);
+            margin-top: 1rem;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        .prediction-number {
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--success) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-top: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 2rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .prediction-number {
+                font-size: 3rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="container">
+        <svg class="bike-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <defs>
+                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color: #3b82f6" />
+                    <stop offset="100%" style="stop-color: #10b981" />
+                </linearGradient>
+            </defs>
+            <path d="M15.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM5 12c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5zm5.8-10l2.4-2.4.8.8c1.3 1.3 3 2.1 5.1 2.1V9c-1.5 0-2.7-.6-3.6-1.5l-1.9-1.9c-.5-.4-1-.6-1.6-.6s-1.1.2-1.4.6L7.8 8.4c-.4.4-.6.9-.6 1.4 0 .6.2 1.1.6 1.4L11 14v5h2v-6.2l-2.2-2.3zM19 12c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5z"/>
+        </svg>
+        <h1>Bike Demand Forecast</h1>
+        <form action="/predict" method="get">
+            <button type="submit" class="predict-btn">
+                Predict Next Day's Demand
+            </button>
+        </form>
+        
+        
+        {% if prediction_text %}
+        <div class="prediction-card">
+            <div class="prediction-text">Predicted Bike Demand</div>
+            <div class="prediction-number">{{ prediction_text.split(':')[1] }}</div>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-label">Confidence Level</div>
+                    <div class="stat-value">{{ confidence_level }}%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Time Frame</div>
+                    <div class="stat-value">{{ time_frame }}</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // GSAP Animations
+        window.addEventListener('load', () => {
+            gsap.to('.container', {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: 'power3.out'
+            });
+
+            gsap.to('.bike-icon', {
+                opacity: 1,
+                scale: 1,
+                duration: 1,
+                delay: 0.2,
+                ease: 'back.out(1.7)'
+            });
+
+            gsap.to('h1', {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                delay: 0.4,
+                ease: 'power3.out'
+            });
+
+            gsap.to('.predict-btn', {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                delay: 0.6,
+                ease: 'power3.out'
+            });
+
+            // Check if prediction exists and run animations
+            if (document.querySelector('.prediction-card')) {
+                gsap.to('.prediction-card', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 1,
+                    delay: 0.8,
+                    ease: 'power3.out'
+                });
+
+                gsap.to('.stats', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 1,
+                    delay: 1,
+                    ease: 'power3.out'
+                });
+            }
+        });
+
+        // Form submission handling
+        document.getElementById('predict-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = this.querySelector('button');
+            const loadingOverlay = document.querySelector('.loading-overlay');
+            
+            // Show loading state
+            btn.disabled = true;
+            btn.innerHTML = 'Predicting...';
+            loadingOverlay.style.display = 'flex';
+            
+            // Animate loading overlay
+            gsap.fromTo(loadingOverlay, 
+                { opacity: 0 },
+                { opacity: 1, duration: 0.3 }
+            );
+
+            // Submit the form
+            fetch('/predict')
+                .then(response => response.text())
+                .then(html => {
+                    // Update the page content
+                    document.documentElement.innerHTML = html;
+                    
+                    // Re-run animations
+                    gsap.from('.prediction-card', {
+                        opacity: 0,
+                        y: 20,
+                        duration: 1,
+                        ease: 'power3.out'
+                    });
+                    
+                    gsap.from('.prediction-number', {
+                        textContent: 0,
+                        duration: 2,
+                        ease: 'power1.out',
+                        snap: { textContent: 1 },
+                        stagger: {
+                            each: 0.1,
+                            onUpdate: function() {
+                                this.targets()[0].innerHTML = Math.ceil(this.targets()[0].textContent);
+                            },
+                        }
+                    });
+                })
+                .finally(() => {
+                    // Hide loading overlay
+                    loadingOverlay.style.display = 'none';
+                    btn.disabled = false;
+                    btn.innerHTML = 'Predict Next Day\'s Demand';
+                });
+        });
+    </script>
+</body>
+</html>
