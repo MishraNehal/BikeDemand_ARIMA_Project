@@ -1,39 +1,55 @@
-# Bike Demand Prediction using ARIMA
+# Bike Demand Forecasting Using ARIMA (Hourly)
 
-## 📌 Problem
-Predict daily bike rentals based on historical demand using ARIMA time-series forecasting.
+This project is part of my AICTE Virtual Internship, where I built a time-series forecasting model to predict hourly bike rental demand using the ARIMA model. The goal was to analyze historical rental patterns and make accurate short-term forecasts to help with resource planning in a bike-sharing system.
 
-## 📊 Dataset
-- UCI Bike Sharing Dataset (day.csv)
+---
 
-## ⚙️ Model
-- ARIMA (AutoRegressive Integrated Moving Average)
-- Evaluated using RMSE and MAE
+## Problem Statement
 
-## 💻 Training
-- Use `Bike_ARIMA_Prediction.ipynb` in Google Colab or Jupyter
+Bike-sharing systems often struggle with predicting demand on an hourly basis. Accurately forecasting how many bikes will be needed can help reduce shortages or idle resources. This project focuses on predicting the number of bike rentals for the next hour using historical data.
 
-## 🛠 Requirements
+---
+
+## Dataset
+
+- **Source**: [UCI Bike Sharing Dataset](https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset)
+- **File Used**: `hour.csv`
+- This file contains hourly rental data with features like date, season, temperature, humidity, and the total count (`cnt`) of bikes rented.
+
+For this project, I focused on using the `cnt` column to train a univariate ARIMA model.
+
+---
+
+## Model Overview
+
+I used the ARIMA (AutoRegressive Integrated Moving Average) model from the `statsmodels` library to forecast future values based on past rental data.
+
+### Why ARIMA?
+- It works well for univariate time series
+- Doesn’t require external variables
+- Easy to train and deploy
+- Offers good baseline accuracy for structured temporal data
+
+---
+
+## Implementation
+
+I used Jupyter Notebook (or Google Colab) to experiment with the dataset, visualize the trends, and build the forecasting model.
+
+Key steps:
+- Load and clean the `hour.csv` data
+- Check stationarity and perform differencing
+- Fit ARIMA with selected parameters (e.g. (3,1,2))
+- Forecast the next value
+- Evaluate using MAE and RMSE
+
+After training, I saved the model as `arima_bike_model.pkl` using `joblib`.
+
+---
+
+## Requirements
+
+Install the necessary libraries with:
+
 ```bash
-pip install flask joblib pandas statsmodels
-```
-
-## 🚀 Deployment (Local)
-1. Run the notebook and save model using joblib
-2. Place `arima_bike_model.pkl` in root
-3. Run Flask app:
-```bash
-python app.py
-```
-
-## 🌐 Deploy to Render
-1. Push all files to a GitHub repo
-2. Go to [https://render.com](https://render.com)
-3. Create new Web Service
-4. Connect your GitHub repo
-5. Use:
-   - Build command: `pip install -r requirements.txt`
-   - Start command: `gunicorn app:app`
-
-## 🧠 Author
-AICTE Internship Project | ARIMA Forecasting | Powered by ChatGPT
+pip install flask joblib pandas statsmodels matplotlib seaborn scikit-learn
