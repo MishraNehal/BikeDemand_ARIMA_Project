@@ -52,4 +52,83 @@ After training, I saved the model as `arima_bike_model.pkl` using `joblib`.
 Install the necessary libraries with:
 
 ```bash
-pip install flask joblib pandas statsmodels matplotlib seaborn scikit-learn
+pip install flask joblib pandas statsmodels matplotlib seaborn scikit-learn gunicorn
+```
+
+--- 
+
+## Local Deployment
+
+1. Clone the repository and ensure `arima_bike_model.pkl` is present
+2. Run the Flask app:
+```bash
+python app.py
+```
+
+3. Open your browser and go to:
+```
+http://127.0.0.1:5000
+```
+
+Click “Predict” to get the next hour's demand forecast.
+
+---
+
+## Deployment on Render
+
+The project is also deployed live here:  
+https://bike-demand-arima.onrender.com
+
+### How I Deployed It:
+
+1. Pushed all project files to a GitHub repo
+2. Logged into [https://render.com](https://render.com)
+3. Created a new **Web Service**
+4. Connected my GitHub repo
+
+### Render Settings:
+
+```
+Build command: pip install -r requirements.txt
+Start command: gunicorn app:app
+```
+
+This allowed me to host the app with no server maintenance.
+
+---
+
+## Project Structure
+
+```
+BikeDemand_ARIMA_Project/
+├── app.py
+├── arima_bike_model.pkl
+├── Bike_ARIMA_Prediction.ipynb
+├── requirements.txt
+├── README.md
+├── templates/
+│   └── index.html
+└── static/ (optional)
+```
+
+---
+
+## Output Example
+
+- Predicted demand for the **next hour**
+- Clean, styled web interface built with Flask + HTML + GSAP
+- Simple “Predict” button shows the result instantly
+
+---
+
+## About
+
+This project was a great opportunity to get hands-on with time-series forecasting using the ARIMA model. I learned how to:
+
+- Preprocess and analyze real-world time-series data
+- Apply ARIMA for short-term forecasting
+- Evaluate model performance using MAE and RMSE
+- Build and deploy a machine learning web app using Flask
+
+It was developed as part of my **AICTE Virtual Internship (AI Domain)**, where I combined data science, web development, and deployment to create a complete end-to-end solution.
+
