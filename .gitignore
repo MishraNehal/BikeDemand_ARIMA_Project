@@ -1,6 +1,26 @@
+# Ignore specific data files
+day.csv
+forecast_output.csv
+
+# Ignore model files
+*.pkl
+
+# Ignore environment folder
 venv/
+
+# Ignore local documentation and reports
+README.txt
+*.pdf
+*.pptx
+
+# Ignore dataset folders (if not needed)
+bike+sharing+dataset/
+BIKEDEMAND_ARIMA_PROJECT/
+
+# Ignore Python cache
 __pycache__/
 *.pyc
 
+# Ignore system files
 .DS_Store
-.env
+Thumbs.db
