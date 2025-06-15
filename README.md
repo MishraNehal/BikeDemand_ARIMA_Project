@@ -43,7 +43,7 @@ Key steps:
 - Forecast the next value
 - Evaluate using MAE and RMSE
 
-After training, I saved the model as `arima_bike_model.pkl` using `joblib`.
+The ARIMA model is trained dynamically during each prediction using the latest data from `hour.csv`.
 
 ---
 
@@ -59,7 +59,7 @@ pip install flask joblib pandas statsmodels matplotlib seaborn scikit-learn guni
 
 ## Local Deployment
 
-1. Clone the repository and ensure `arima_bike_model.pkl` is present
+1. Clone the repository and ensure `hour.csv` is present in the root folder for live model training
 2. Run the Flask app:
 ```bash
 python app.py
@@ -102,7 +102,7 @@ This allowed me to host the app with no server maintenance.
 ```
 BikeDemand_ARIMA_Project/
 ├── app.py
-├── arima_bike_model.pkl
+├── forecast_output.csv
 ├── Bike_ARIMA_Prediction.ipynb
 ├── requirements.txt
 ├── README.md
